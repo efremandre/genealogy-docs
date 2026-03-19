@@ -21,6 +21,17 @@
 ##### Response:
 * ok: true
 
+#### Users (Пользователи которые регистрируются в приложении и строят древо)
+###### GET /api/me
+##### Response:
+* 
+
+##### Request:
+* id
+* email
+* first_name
+* last_name
+
 ### Tree
 #### GET /api/tree
 ##### Response:  
