@@ -47,17 +47,25 @@
 
 ### Persons
 #### GET /api/persons
+Authorization: Bearer <token>
 ##### Response:
 * persons: Person[]
 
 #### POST /api/persons
+Authorization: Bearer <token>
 ##### Request:
-* firstName
-* lastName
-* gender?
-* birthYear?
-* fatherId?
-* motherId?
+* first_name
+* last_name
+* gender
+* birth_year
+* birth_month
+* birth_day
+* is_alive
+* death_year
+* death_month
+* death_day
+* father_id
+* mother_id
 
 ##### Response:
 * person
@@ -85,4 +93,4 @@
 #### Зачем он нужен:
 
 Это фиксирует, какие эндпоинты существуют и какие данные они принимают/возвращают.
-Без этого ты начнёшь дергать API “как получится”, и фронт/бэк будут расходить
+Без этого ты начнёшь дергать API “как получится”, и фронт/бэк будут расходить  
