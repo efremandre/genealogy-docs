@@ -1,96 +1,142 @@
-## Минимальный контракт для MVP  
+## Минимальный контракт для MVP
 
-### Auth  
-#### POST /api/auth/register  
+### Health
+#### GET /health
+##### Response:
+* plain text `Ok. Version 1.0.0`
+
+### Auth
+#### POST /api/auth/register
 ##### Request:
-* email
-* password
+* email: string
+* password: string
 
 ##### Response:
-* user: { id, email }
+* user: { id: number, email: string }
 
 #### POST /api/auth/login
 ##### Request:
-* email
-* password
+* email: string
+* password: string
 
 ##### Response:
-* user: { id, email }
+* user: { id: number, email: string }
+* token: string
 
-#### POST /api/auth/logout
+### Current user
+> Эти эндпоинты защищены. Передавайте заголовок `Authorization: Bearer <token>`.
+
+#### GET /api/me
 ##### Response:
-* ok: true
+* user: {
+  * id: number
+  * email: string
+  * firstName: string | null
+  * lastName: string | null
+  * createdAt: string (ISO timestamp)
+  * updatedAt: string | null
+  }
 
-#### Users (Пользователи которые регистрируются в приложении и строят древо)
-###### GET /api/me
-##### Response:
-* 
-
+#### PATCH /api/me
 ##### Request:
-* id
-* email
-* first_name
-* last_name
+* firstName?: string
+* lastName?: string
+
+##### Response:
+* user: {
+  * id: number
+  * email: string
+  * firstName: string | null
+  * lastName: string | null
+  * createdAt: string (ISO timestamp)
+  * updatedAt: string | null
+  }
 
 ### Tree
+> Этот эндпоинт защищён. Передавайте заголовок `Authorization: Bearer <token>`.
+
 #### GET /api/tree
-##### Response:  
-* tree: { id, title, rootPersonId }
-
-#### PATCH /api/tree
-##### Request (любое из):
-* title
-* rootPersonId
-
 ##### Response:
-* tree
+* tree: {
+  * id: number
+  * name: string
+  * rootPersonId: number | null
+  }
 
 ### Persons
+> Все следующие эндпоинты защищены. Передавайте заголовок `Authorization: Bearer <token>`.
+
 #### GET /api/persons
-Authorization: Bearer <token>
 ##### Response:
 * persons: Person[]
 
+#### GET /api/person/{id}
+##### Response:
+* person: Person
+
 #### POST /api/persons
-Authorization: Bearer <token>
 ##### Request:
-* first_name
-* last_name
-* gender
-* birth_year
-* birth_month
-* birth_day
-* is_alive
-* death_year
-* death_month
-* death_day
-* father_id
-* mother_id
+* firstName: string
+* lastName: string
+* maidenName?: string
+* middleName?: string
+* gender?: string
+* birthYear?: number
+* birthMonth?: number
+* birthDay?: number
+* isAlive?: boolean
+* deathYear?: number
+* deathMonth?: number
+* deathDay?: number
+* fatherId?: number
+* motherId?: number
 
 ##### Response:
-* person
+* person: Person
 
-#### PATCH /api/persons/:id
+#### PATCH /api/persons/{id}
 ##### Request:
-* любые поля Person (кроме id, treeId)
+* firstName?: string
+* lastName?: string
+* maidenName?: string
+* middleName?: string
+* gender?: string
+* birthYear?: number
+* birthMonth?: number
+* birthDay?: number
+* isAlive?: boolean
+* deathYear?: number
+* deathMonth?: number
+* deathDay?: number
+* fatherId?: number
+* motherId?: number
 
 ##### Response:
-* person
+* person: Person
 
-#### DELETE /api/persons/:id
+#### DELETE /api/persons/{id}
 ##### Response:
 * ok: true
 
-### Relation
-#### GET /api/relation/:personId
-##### Query:
-* rootId (если не используешь tree.rootPersonId)
-
-##### Response:
-* relationLabel: string
+### Person object
+* id: number
+* firstName: string
+* lastName: string
+* maidenName?: string
+* middleName?: string
+* gender?: string
+* birthYear?: number
+* birthMonth?: number
+* birthDay?: number
+* isAlive: boolean
+* deathYear?: number
+* deathMonth?: number
+* deathDay?: number
+* fatherId?: number
+* motherId?: number
 
 ---
 #### Зачем он нужен:
 
 Это фиксирует, какие эндпоинты существуют и какие данные они принимают/возвращают.
-Без этого ты начнёшь дергать API “как получится”, и фронт/бэк будут расходить  
+Без этого ты начнёшь дергать API “как получится”, и фронт/бэк будут расходить.

@@ -1,0 +1,553 @@
+openapi: 3.0.3
+info:
+  title: Genealogy API
+  description: API контракт для MVP-версии приложения. Этот файл описывает доступные эндпоинты, форматы запросов и ответов.
+  version: 1.0.0
+servers:
+  - url: http://localhost:8080
+    description: Локальный сервер разработки
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+        - error
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        email:
+          type: string
+          format: email
+          example: user@example.com
+      required:
+        - id
+        - email
+    AuthRegisterRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+      required:
+        - email
+        - password
+    AuthLoginRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+      required:
+        - email
+        - password
+    AuthLoginResponse:
+      type: object
+      properties:
+        user:
+          $ref: '#/components/schemas/User'
+        token:
+          type: string
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+      required:
+        - user
+        - token
+    MeResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        email:
+          type: string
+          format: email
+          example: user@example.com
+        firstName:
+          type: string
+          nullable: true
+          example: Ivan
+        lastName:
+          type: string
+          nullable: true
+          example: Ivanov
+        createdAt:
+          type: string
+          format: date-time
+          example: 2026-05-16T12:34:56Z
+        updatedAt:
+          type: string
+          format: date-time
+          nullable: true
+          example: 2026-05-17T08:00:00Z
+      required:
+        - id
+        - email
+        - createdAt
+    UpdateMeRequest:
+      type: object
+      properties:
+        firstName:
+          type: string
+        lastName:
+          type: string
+    TreeResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "Ivanov family tree"
+        rootPersonId:
+          type: integer
+          nullable: true
+          example: 42
+      required:
+        - id
+        - name
+    Person:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        firstName:
+          type: string
+          example: Ivan
+        lastName:
+          type: string
+          example: Ivanov
+        maidenName:
+          type: string
+          nullable: true
+          example: Petrova
+        middleName:
+          type: string
+          nullable: true
+          example: Sergeevich
+        gender:
+          type: string
+          nullable: true
+          example: male
+        birthYear:
+          type: integer
+          nullable: true
+          example: 1975
+        birthMonth:
+          type: integer
+          nullable: true
+          example: 6
+        birthDay:
+          type: integer
+          nullable: true
+          example: 18
+        isAlive:
+          type: boolean
+          example: true
+        deathYear:
+          type: integer
+          nullable: true
+          example: 2025
+        deathMonth:
+          type: integer
+          nullable: true
+          example: 11
+        deathDay:
+          type: integer
+          nullable: true
+          example: 3
+        fatherId:
+          type: integer
+          nullable: true
+          example: 10
+        motherId:
+          type: integer
+          nullable: true
+          example: 11
+      required:
+        - id
+        - firstName
+        - lastName
+        - isAlive
+    PersonsResponse:
+      type: object
+      properties:
+        persons:
+          type: array
+          items:
+            $ref: '#/components/schemas/Person'
+      required:
+        - persons
+    PersonResponse:
+      type: object
+      properties:
+        person:
+          $ref: '#/components/schemas/Person'
+      required:
+        - person
+    CreatePersonRequest:
+      type: object
+      properties:
+        firstName:
+          type: string
+        lastName:
+          type: string
+        maidenName:
+          type: string
+        middleName:
+          type: string
+        gender:
+          type: string
+          example: male
+        birthYear:
+          type: integer
+        birthMonth:
+          type: integer
+        birthDay:
+          type: integer
+        isAlive:
+          type: boolean
+        deathYear:
+          type: integer
+        deathMonth:
+          type: integer
+        deathDay:
+          type: integer
+        fatherId:
+          type: integer
+        motherId:
+          type: integer
+      required:
+        - firstName
+        - lastName
+    UpdatePersonRequest:
+      type: object
+      properties:
+        firstName:
+          type: string
+        lastName:
+          type: string
+        maidenName:
+          type: string
+        middleName:
+          type: string
+        gender:
+          type: string
+          example: female
+        birthYear:
+          type: integer
+        birthMonth:
+          type: integer
+        birthDay:
+          type: integer
+        isAlive:
+          type: boolean
+        deathYear:
+          type: integer
+        deathMonth:
+          type: integer
+        deathDay:
+          type: integer
+        fatherId:
+          type: integer
+        motherId:
+          type: integer
+paths:
+  /health:
+    get:
+      summary: Health check
+      description: Проверка доступности сервера
+      responses:
+        '200':
+          description: Ok
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Ok. Version 1.0.0
+  /api/auth/register:
+    post:
+      summary: Регистрация пользователя
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthRegisterRequest'
+      responses:
+        '201':
+          description: Пользователь зарегистрирован
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    $ref: '#/components/schemas/User'
+                required:
+                  - user
+        '400':
+          description: Ошибка запроса
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/auth/login:
+    post:
+      summary: Вход пользователя
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthLoginRequest'
+      responses:
+        '200':
+          description: Успешный вход
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthLoginResponse'
+        '401':
+          description: Неверные учетные данные
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/me:
+    get:
+      security:
+        - bearerAuth: []
+      summary: Получить профиль текущего пользователя
+      responses:
+        '200':
+          description: Данные текущего пользователя
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    $ref: '#/components/schemas/MeResponse'
+                required:
+                  - user
+        '401':
+          description: Не авторизован
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    patch:
+      security:
+        - bearerAuth: []
+      summary: Обновить профиль текущего пользователя
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateMeRequest'
+      responses:
+        '200':
+          description: Профиль обновлён
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    $ref: '#/components/schemas/MeResponse'
+                required:
+                  - user
+        '400':
+          description: Ошибка запроса
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Не авторизован
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/tree:
+    get:
+      security:
+        - bearerAuth: []
+      summary: Получить дерево текущего пользователя
+      responses:
+        '200':
+          description: Данные дерева
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  tree:
+                    $ref: '#/components/schemas/TreeResponse'
+                required:
+                  - tree
+        '401':
+          description: Не авторизован
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/persons:
+    get:
+      security:
+        - bearerAuth: []
+      summary: Список людей в дереве
+      responses:
+        '200':
+          description: Список людей
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PersonsResponse'
+        '401':
+          description: Не авторизован
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      security:
+        - bearerAuth: []
+      summary: Создать нового человека
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePersonRequest'
+      responses:
+        '201':
+          description: Человек создан
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PersonResponse'
+        '400':
+          description: Ошибка запроса
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Не авторизован
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/person/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      security:
+        - bearerAuth: []
+      summary: Получить человека по id
+      responses:
+        '200':
+          description: Данные человека
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PersonResponse'
+        '401':
+          description: Не авторизован
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Не найдено
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    patch:
+      security:
+        - bearerAuth: []
+      summary: Обновить человека
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdatePersonRequest'
+      responses:
+        '200':
+          description: Человек обновлён
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PersonResponse'
+        '400':
+          description: Ошибка запроса
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Не авторизован
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      security:
+        - bearerAuth: []
+      summary: Удалить человека
+      responses:
+        '200':
+          description: Успешное удаление
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                required:
+                  - ok
+        '400':
+          description: Ошибка запроса
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Не авторизован
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Не найдено
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+security:
+  - bearerAuth: []
